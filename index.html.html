@@ -1,0 +1,603 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>サカナクション 透明ツアー セトリガチャ</title>
+<style>
+  :root {
+    --bg1:#06141f;
+    --bg2:#0b2b3a;
+    --card:rgba(255,255,255,.09);
+    --line:rgba(255,255,255,.18);
+    --text:#f5fbff;
+    --muted:#b8d6e8;
+    --accent:#89e8ff;
+    --accent2:#f6f0a6;
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0;
+    min-height:100vh;
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",Meiryo,sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(circle at 20% 10%, rgba(137,232,255,.25), transparent 26%),
+      radial-gradient(circle at 80% 20%, rgba(246,240,166,.16), transparent 24%),
+      linear-gradient(160deg,var(--bg1),var(--bg2) 62%,#02090f);
+    padding:22px;
+  }
+  .wrap {
+    width:min(980px,100%);
+    margin:0 auto;
+  }
+  .hero {
+    border:1px solid var(--line);
+    border-radius:28px;
+    padding:24px;
+    background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.05));
+    box-shadow:0 20px 70px rgba(0,0,0,.28);
+    overflow:hidden;
+    position:relative;
+  }
+  .hero:before {
+    content:"";
+    position:absolute;
+    inset:-80px -40px auto auto;
+    width:220px;height:220px;
+    border-radius:50%;
+    background:rgba(137,232,255,.16);
+    filter:blur(4px);
+  }
+  h1 {
+    margin:0 0 8px;
+    font-size:clamp(28px,6vw,52px);
+    line-height:1.05;
+    letter-spacing:.04em;
+  }
+  .sub {
+    margin:0 0 18px;
+    color:var(--muted);
+    line-height:1.6;
+  }
+  .controls {
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+  button {
+    border:0;
+    padding:13px 18px;
+    border-radius:999px;
+    font-weight:800;
+    cursor:pointer;
+    color:#06202b;
+    background:linear-gradient(135deg,var(--accent),#fff);
+    box-shadow:0 10px 24px rgba(137,232,255,.25);
+    font-size:15px;
+  }
+  button.secondary {
+    background:rgba(255,255,255,.12);
+    color:var(--text);
+    border:1px solid var(--line);
+    box-shadow:none;
+  }
+  .namebox{
+    margin:12px 0 14px;
+  }
+  input{
+    width:min(360px,100%);
+    border-radius:999px;
+    border:1px solid var(--line);
+    background:rgba(0,0,0,.18);
+    color:var(--text);
+    padding:13px 16px;
+    font-size:15px;
+    outline:none;
+  }
+  input::placeholder{color:var(--muted);}
+  .count {
+    color:var(--muted);
+    font-size:13px;
+  }
+  .grid {
+    display:grid;
+    grid-template-columns:1fr;
+    gap:18px;
+    margin-top:18px;
+  }
+  @media (min-width:760px) {
+    .grid { grid-template-columns:2fr 1fr; }
+  }
+  .panel {
+    border:1px solid var(--line);
+    border-radius:24px;
+    background:var(--card);
+    backdrop-filter:blur(12px);
+    padding:18px;
+  }
+  h2 {
+    margin:0 0 12px;
+    font-size:19px;
+    letter-spacing:.04em;
+  }
+  ol {
+    margin:0;
+    padding-left:0;
+    list-style:none;
+    display:grid;
+    gap:8px;
+  }
+  li {
+    display:grid;
+    grid-template-columns:38px 1fr;
+    gap:10px;
+    align-items:center;
+    padding:10px 12px;
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:16px;
+    background:rgba(0,0,0,.14);
+    min-height:44px;
+  }
+  .num {
+    color:var(--accent2);
+    font-variant-numeric:tabular-nums;
+    font-weight:800;
+    text-align:right;
+  }
+  .song {
+    line-height:1.35;
+  }
+  .encore li {
+    background:rgba(246,240,166,.11);
+  }
+  .empty {
+    color:var(--muted);
+    padding:18px;
+    border:1px dashed var(--line);
+    border-radius:18px;
+    line-height:1.7;
+  }
+  textarea {
+    width:100%;
+    min-height:180px;
+    resize:vertical;
+    border-radius:18px;
+    border:1px solid var(--line);
+    background:rgba(0,0,0,.18);
+    color:var(--text);
+    padding:14px;
+    font:14px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  .small {
+    font-size:12px;
+    color:var(--muted);
+    line-height:1.55;
+  }
+
+.glowRare{animation:pulse 1.8s infinite;}
+@keyframes pulse{
+0%{box-shadow:0 0 0 rgba(255,255,255,0)}
+50%{box-shadow:0 0 18px rgba(137,232,255,.32)}
+100%{box-shadow:0 0 0 rgba(255,255,255,0)}
+}
+.badge{
+  display:inline-block;
+  margin-left:8px;
+  padding:2px 7px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:800;
+  color:#06202b;
+  background:linear-gradient(135deg,var(--accent2),#fff);
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <h1>透明ツアー<br>セトリガチャ</h1>
+    <p class="sub">これまで整理した曲から、<b>本編20曲＋アンコール3曲</b>をランダム生成。かぶり防止＋少しだけライブっぽい曲順補正あり。</p>
+    <div class="namebox">
+      <input id="userName" type="text" maxlength="20" placeholder="名前（任意）">
+    </div>
+    <div class="controls">
+      <button onclick="generateSetlist()">開演する</button>
+      <button class="secondary" onclick="copySetlist()">コピー</button>
+      <button class="secondary" onclick="shareToX()">Xで共有</button>
+      <button class="secondary" onclick="saveImage()">画像保存</button>
+      <button class="secondary" onclick="toggleSongList()">曲リスト編集</button>
+      <span class="count" id="count"></span>
+    </div>
+  </section>
+
+  <div class="grid">
+    <section class="panel" id="setlistCard">
+      <h2 id="setlistTitle">本編 20曲</h2>
+      <ol id="mainList"><div class="empty">「セトリを生成」を押してね。</div></ol>
+    </section>
+
+    <section class="panel">
+      <h2>Encore 3曲</h2>
+      <ol class="encore" id="encoreList"><div class="empty">アンコールも自動で出るよ。</div></ol>
+    </section>
+  </div>
+
+  <section class="panel" id="editor" style="display:none;margin-top:18px;">
+    <h2>曲リスト編集</h2>
+    <p class="small">1行1曲。ここを増減してから「セトリを生成」を押すと、そのリストから抽選する。</p>
+    <textarea id="songInput"></textarea>
+  </section>
+</div>
+<canvas id="shareCanvas" width="1200" height="1600" style="display:none;"></canvas>
+
+<script>
+const defaultSongs = ["三日月サンセット", "インナーワールド", "あめふら", "GO TO THE FUTURE", "フクロウ", "開花", "白波トップウォーター", "夜の東側", "ワード", "サンプル", "ナイトフィッシングイズグッド", "雨は気まぐれ", "マレーシア32", "うねり", "ティーンエイジ", "哀愁トレイン", "新しい世界", "アムスフィッシュ", "Ame(B)", "ライトダンス", "セントレイ", "ネイティブダンサー", "minnanouta", "雑踏", "黄色い車", "enough", "涙ディライト", "アドベンチャー", "human", "intro＝汽空域", "潮", "YES NO", "アルクアラウンド", "Klee", "21.1", "アンダー", "シーラカンスと僕", "明日から", "表参道26時", "壁", "目が明く藍色", "Paradise of Sunny", "RL", "アイデンティティ", "モノクロトウキョー", "ルーキー", "アンタレスと針", "仮面の街", "流線", "エンドレス", "DocumentaRy", "『バッハの旋律を夜に聴いたせいです。』", "years", "ドキュメント", "intro", "INORI", "ミュージック", "夜の踊り子", "なんてったって春", "アルデバラン", "M", "Aoi", "ボイル", "映画", "僕と花", "mellow", "ストラクチャー", "朝の歌", "ホーリーダンス", "Ame(A)", "multiple exposure", "スローモーション", "もどかしい日々", "スプーンと汗", "ネプトゥーヌス", "montage", "忘れられないの", "マッチとピーナッツ", "陽炎", "多分、風。", "新宝島", "モス", "聴きたかったダンスミュージック、リキッドルームに", "セプテンバー -東京 version-", "グッドバイ", "蓮の花", "ユリイカ", "ナイロンの糸", "茶柱", "ワンダーランド", "さよならはエモーション", "834.194", "セプテンバー -札幌 version-", "塔", "キャラバン", "月の椀", "プラトー", "ショック！", "エウリュノメー", "シャンディガフ", "フレンドリー", "DocumentaRy of ADAPT", "moon", "怪獣", "マレーシア32 ～ 21.1 ～ Paradise of Sunny", "SAKANATRIBE", "SORATO", "僕と花 -SAKANAQUARIUM 2013 VERSION-", "ネイティブダンサー -SAKANAQUARIUM 2013 VERSION-", "バッハの旋律を夜に聴いたせいです。 -SAKANAQUARIUM 2013 VERSION-", "Ame(B) -SAKANATRIBE MIX-", "N.F.I.G REMIX", "SAKANATRIBE TRANCEMIX WITH GOCOO+GoRo", "グッドバイ (NEXT WORLD REMIX)", "ネイティブダンサー Remix 2024", "バッハの旋律を夜に聴いたせいです。 Remix 2024", "GO TO THE FUTURE (2006 ver.)", "ナイトフィッシングイズグッド (Iw_Remix)", "ミュージック (Ej_Remix)", "アイデンティティ (Ks_Remix)", "ルーキー (Takkyu Ishino Remix)", "三日月サンセット (FPM EVERLUST MIX)", "ライトダンス YSST Remix 2015", "映画 (AOKI takamasa Remix)", "サンプル (cosmic version)", "さよならはエモーション (Qrion Remix)", "YES NO (AOKI takamasa Remix)", "夜の踊り子 (agraph Remix)", "ミュージック (Cornelius Remix)", "ネイティブダンサー (rei harakami re-arrange)"];
+let songs = [...defaultSongs];
+
+const countEl = document.getElementById("count");
+const input = document.getElementById("songInput");
+input.value = songs.join("\n");
+updateCount();
+
+function getSongsFromInput() {
+  const list = input.value
+    .split("\n")
+    .map(s => s.trim())
+    .filter(Boolean);
+  songs = [...new Set(list)];
+  updateCount();
+  return songs;
+}
+
+function updateCount() {
+  countEl.textContent = `登録曲：${songs.length}曲`;
+}
+
+function shuffle(array) {
+  const a = [...array];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function normalizeSongTitle(title) {
+  return title
+    .replace(/『|』|「|」|\(|\)|（|）|\[|\]|【|】/g, "")
+    .replace(/\s*[-–ー]\s*SAKANAQUARIUM.*$/i, "")
+    .replace(/\s*[-–ー]\s*SAKANATRIBE.*$/i, "")
+    .replace(/\s*[-–ー]\s*Remix\s*\d*.*$/i, "")
+    .replace(/\s*\d{4}\s*VERSION.*$/i, "")
+    .replace(/\s*VERSION.*$/i, "")
+    .replace(/\s*\d{4}.*$/i, "")
+    .replace(/\s*\w+_Remix.*$/i, "")
+    .replace(/\s*\w+\s+Remix.*$/i, "")
+    .replace(/\s*\w+\s+MIX.*$/i, "")
+    .replace(/\s*\w+\s+re-arrange.*$/i, "")
+    .replace(/\s*\w+\s+Rearrange.*$/i, "")
+    .replace(/\s*\(.*?Remix.*?\)\s*$/i, "")
+    .replace(/\s*\(.*?MIX.*?\)\s*$/i, "")
+    .replace(/\s*\(.*?re-arrange.*?\)\s*$/i, "")
+    .replace(/\s*\(.*?version.*?\)\s*$/i, "")
+    .replace(/\s*cosmic version\s*$/i, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+const sameSongGroups = [
+  ["『バッハの旋律を夜に聴いたせいです。』", "バッハの旋律を夜に聴いたせいです。 -SAKANAQUARIUM 2013 VERSION-", "バッハの旋律を夜に聴いたせいです。 Remix 2024"],
+  ["ネイティブダンサー", "ネイティブダンサー -SAKANAQUARIUM 2013 VERSION-", "ネイティブダンサー Remix 2024", "ネイティブダンサー (rei harakami re-arrange)"],
+  ["僕と花", "僕と花 -SAKANAQUARIUM 2013 VERSION-"],
+  ["Ame(B)", "Ame(B) -SAKANATRIBE MIX-"],
+  ["ナイトフィッシングイズグッド", "N.F.I.G REMIX", "ナイトフィッシングイズグッド (Iw_Remix)"],
+  ["グッドバイ", "グッドバイ (NEXT WORLD REMIX)"],
+  ["GO TO THE FUTURE", "GO TO THE FUTURE (2006 ver.)"],
+  ["ミュージック", "ミュージック (Ej_Remix)", "ミュージック (Cornelius Remix)"],
+  ["アイデンティティ", "アイデンティティ (Ks_Remix)"],
+  ["ルーキー", "ルーキー (Takkyu Ishino Remix)"],
+  ["三日月サンセット", "三日月サンセット (FPM EVERLUST MIX)"],
+  ["ライトダンス", "ライトダンス YSST Remix 2015"],
+  ["映画", "映画 (AOKI takamasa Remix)"],
+  ["サンプル", "サンプル (cosmic version)"],
+  ["さよならはエモーション", "さよならはエモーション (Qrion Remix)"],
+  ["YES NO", "YES NO (AOKI takamasa Remix)"],
+  ["夜の踊り子", "夜の踊り子 (agraph Remix)"]
+];
+
+const groupKeyMap = new Map();
+sameSongGroups.forEach((group, index) => {
+  group.forEach(song => groupKeyMap.set(normalizeSongTitle(song), `group-${index}`));
+});
+
+function getSongKey(song) {
+  const normalized = normalizeSongTitle(song);
+  return groupKeyMap.get(normalized) || normalized;
+}
+
+function pickWithoutSameSongDupes(pool, count) {
+  const shuffled = shuffle(pool);
+  const picked = [];
+  const usedKeys = new Set();
+
+  for (const song of shuffled) {
+    const key = getSongKey(song);
+    if (usedKeys.has(key)) continue;
+    picked.push(song);
+    usedKeys.add(key);
+    if (picked.length === count) break;
+  }
+
+  return picked;
+}
+
+async function blackout(){
+  const overlay=document.createElement("div");
+  overlay.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.96);z-index:9999;opacity:0;transition:opacity .28s ease;";
+  document.body.appendChild(overlay);
+  requestAnimationFrame(()=>overlay.style.opacity="1");
+  await new Promise(r=>setTimeout(r,520));
+  overlay.style.opacity="0";
+  await new Promise(r=>setTimeout(r,300));
+  overlay.remove();
+}
+
+const openerCandidates = [
+  "怪獣","アイデンティティ","アルクアラウンド","ミュージック","夜の踊り子","新宝島","INORI","Aoi","モス"
+];
+
+const mainLastCandidates = [
+  "新宝島","忘れられないの","怪獣","ミュージック","夜の踊り子","アイデンティティ"
+];
+
+const encoreCandidates = [
+  "三日月サンセット","ナイトフィッシングイズグッド","アイデンティティ","新宝島","怪獣","ミュージック","グッドバイ","ユリイカ"
+];
+
+function pickOneFromCandidates(pool, candidates, usedKeys){
+  const available = shuffle(pool).filter(song => {
+    const key = getSongKey(song);
+    return candidates.includes(song) && !usedKeys.has(key);
+  });
+  if (available.length) {
+    const song = available[0];
+    usedKeys.add(getSongKey(song));
+    return song;
+  }
+  for (const song of shuffle(pool)) {
+    const key = getSongKey(song);
+    if (!usedKeys.has(key)) {
+      usedKeys.add(key);
+      return song;
+    }
+  }
+  return null;
+}
+
+function pickLiveLikeSetlist(pool){
+  const usedKeys = new Set();
+  const result = [];
+
+  const opener = pickOneFromCandidates(pool, openerCandidates, usedKeys);
+  if (opener) result.push(opener);
+
+  while (result.length < 19) {
+    const song = pickOneFromCandidates(pool, [], usedKeys);
+    if (!song) break;
+    result.push(song);
+  }
+
+  const last = pickOneFromCandidates(pool, mainLastCandidates, usedKeys);
+  if (last) result.push(last);
+
+  while (result.length < 20) {
+    const song = pickOneFromCandidates(pool, [], usedKeys);
+    if (!song) break;
+    result.push(song);
+  }
+
+  const encore = [];
+  while (encore.length < 3) {
+    const song = pickOneFromCandidates(pool, encoreCandidates, usedKeys);
+    if (!song) break;
+    encore.push(song);
+  }
+
+  return result.slice(0,20).concat(encore);
+}
+
+async function generateSetlist() {
+  const pool = getSongsFromInput();
+  const uniqueSongCount = new Set(pool.map(getSongKey)).size;
+  if (uniqueSongCount < 23) {
+    alert("重複整理後の曲数が23曲未満です。曲を増やしてね。");
+    return;
+  }
+  await blackout();
+  const picked = pickLiveLikeSetlist(pool);
+  document.getElementById("setlistTitle").textContent = `${getDisplayName()}本編 20曲`;
+  render("mainList", picked.slice(0, 20), 1);
+  render("encoreList", picked.slice(20), 1);
+}
+
+function rarity(song){
+  const rare=["human","映画","アンタレスと針","茶柱","エウリュノメー","SORATO","SAKANATRIBE","Paradise of Sunny","スプーンと汗"];
+  return rare.includes(song);
+}
+
+function render(id, list, start) {
+  const el = document.getElementById(id);
+  el.innerHTML = "";
+  list.forEach((song, i) => {
+    const li = document.createElement("li");
+    li.innerHTML = `<span class="num">${String(start + i).padStart(2,"0")}</span><span class="song">${escapeHtml(song)}${rarity(song)?' <span class="badge">DEEP</span>':""}</span>`; if(rarity(song)) li.classList.add("glowRare");
+    el.appendChild(li);
+  });
+}
+
+function escapeHtml(str) {
+  return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+}
+
+
+function getDisplayName(){
+  const name = document.getElementById("userName").value.trim();
+  return name ? `${name}さんの` : "";
+}
+
+function currentSetlist(){
+  const main = [...document.querySelectorAll("#mainList .song")].map(e=>e.textContent.replace("DEEP","").trim());
+  const enc = [...document.querySelectorAll("#encoreList .song")].map(e=>e.textContent.replace("DEEP","").trim());
+  return {main, enc};
+}
+
+function makeShareText(){
+  const {main, enc} = currentSetlist();
+  if (!main.length) return "";
+  const title = `【${getDisplayName()}透明ツアー予想セトリ】`;
+  const mainText = main.map((s,i)=>`${String(i+1).padStart(2,"0")}. ${s}`).join("\n");
+  const encText = enc.map((s,i)=>`EN${i+1}. ${s}`).join("\n");
+  return `${title}\n\n${mainText}\n\nEncore\n${encText}\n\n#サカナクション\n#透明ツアー\n#透明ツアーセトリガチャ`;
+}
+
+function shareToX(){
+  const text = makeShareText();
+  if (!text) {
+    alert("先にセトリを生成してね。");
+    return;
+  }
+  const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+  window.open(url, "_blank");
+}
+
+async function saveImage(){
+  const {main, enc} = currentSetlist();
+  if (!main.length) {
+    alert("先にセトリを生成してね。");
+    return;
+  }
+
+  const canvas = document.getElementById("shareCanvas");
+  const ctx = canvas.getContext("2d");
+  const w = canvas.width, h = canvas.height;
+
+  const grad = ctx.createLinearGradient(0,0,w,h);
+  grad.addColorStop(0,"#06141f");
+  grad.addColorStop(.55,"#0b2b3a");
+  grad.addColorStop(1,"#02090f");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0,0,w,h);
+
+  // soft lights
+  ctx.fillStyle = "rgba(137,232,255,.18)";
+  ctx.beginPath(); ctx.arc(190,130,210,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle = "rgba(246,240,166,.12)";
+  ctx.beginPath(); ctx.arc(980,220,190,0,Math.PI*2); ctx.fill();
+
+  ctx.strokeStyle = "rgba(255,255,255,.22)";
+  ctx.lineWidth = 3;
+  roundRect(ctx,70,70,w-140,h-140,34);
+  ctx.stroke();
+
+  ctx.fillStyle = "#f5fbff";
+  ctx.font = "900 58px sans-serif";
+  ctx.fillText("透明ツアー 予想セトリ", 110, 155);
+
+  ctx.fillStyle = "#b8d6e8";
+  ctx.font = "500 30px sans-serif";
+  const name = getDisplayName();
+  ctx.fillText(name ? `${name}SETLIST` : "SETLIST GACHA", 112, 205);
+
+  ctx.fillStyle = "#f6f0a6";
+  ctx.font = "800 30px sans-serif";
+  ctx.fillText("Main set", 112, 270);
+
+  ctx.fillStyle = "#f5fbff";
+  ctx.font = "500 31px sans-serif";
+  let y = 325;
+  main.forEach((song,i)=>{
+    ctx.fillStyle = "#89e8ff";
+    ctx.font = "800 27px sans-serif";
+    ctx.fillText(String(i+1).padStart(2,"0"), 116, y);
+    ctx.fillStyle = "#f5fbff";
+    ctx.font = "500 30px sans-serif";
+    drawText(ctx, song, 178, y, 870, 32);
+    y += 52;
+  });
+
+  y += 18;
+  ctx.fillStyle = "#f6f0a6";
+  ctx.font = "800 30px sans-serif";
+  ctx.fillText("Encore", 112, y);
+  y += 55;
+
+  enc.forEach((song,i)=>{
+    ctx.fillStyle = "#89e8ff";
+    ctx.font = "800 27px sans-serif";
+    ctx.fillText(`EN${i+1}`, 112, y);
+    ctx.fillStyle = "#f5fbff";
+    ctx.font = "500 30px sans-serif";
+    drawText(ctx, song, 178, y, 870, 32);
+    y += 52;
+  });
+
+  ctx.fillStyle = "#b8d6e8";
+  ctx.font = "500 25px sans-serif";
+  ctx.fillText("#サカナクション #透明ツアー #透明ツアーセトリガチャ", 110, h-110);
+
+  const link = document.createElement("a");
+  link.download = "toumei-setlist-gacha.png";
+  link.href = canvas.toDataURL("image/png");
+  link.click();
+}
+
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);
+  ctx.arcTo(x,y,x+w,y,r);
+  ctx.closePath();
+}
+
+function drawText(ctx, text, x, y, maxWidth, lineHeight){
+  if (ctx.measureText(text).width <= maxWidth) {
+    ctx.fillText(text, x, y);
+    return;
+  }
+  let line = "";
+  let yy = y;
+  for (const char of text) {
+    const test = line + char;
+    if (ctx.measureText(test).width > maxWidth && line) {
+      ctx.fillText(line, x, yy);
+      line = char;
+      yy += lineHeight;
+    } else {
+      line = test;
+    }
+  }
+  ctx.fillText(line, x, yy);
+}
+
+function copySetlist() {
+  const main = [...document.querySelectorAll("#mainList .song")].map((e,i)=>`${String(i+1).padStart(2,"0")}. ${e.textContent}`);
+  const enc = [...document.querySelectorAll("#encoreList .song")].map((e,i)=>`EN${i+1}. ${e.textContent}`);
+  if (!main.length) {
+    alert("先にセトリを生成してね。");
+    return;
+  }
+  const text = [`${getDisplayName()}透明ツアー予想セトリ`, "", ...main, "", "Encore", ...enc].join("\n");
+  navigator.clipboard.writeText(text).then(()=>alert("コピーしたよ。"));
+}
+
+function toggleSongList() {
+  const editor = document.getElementById("editor");
+  editor.style.display = editor.style.display === "none" ? "block" : "none";
+}
+</script>
+</body>
+</html>
