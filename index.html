@@ -97,6 +97,18 @@
     outline:none;
   }
   input::placeholder{color:var(--muted);}
+  .observer{
+    display:inline-block;
+    margin:0 0 14px;
+    padding:7px 12px;
+    border:1px solid rgba(255,255,255,.16);
+    border-radius:999px;
+    color:var(--accent2);
+    background:rgba(0,0,0,.14);
+    font-size:13px;
+    font-weight:800;
+    letter-spacing:.06em;
+  }
   .count {
     color:var(--muted);
     font-size:13px;
@@ -233,8 +245,10 @@
     <div class="namebox">
       <input id="userName" type="text" maxlength="20" placeholder="名前（任意）">
     </div>
+    <div class="observer" id="observerLabel">透明観測 No.---</div>
     <div class="controls">
       <button onclick="generateSetlist()">開演する</button>
+      <button class="secondary" id="soundToggle" onclick="toggleSound()">音 ON</button>
       <button class="secondary" onclick="shareImage()">画像を共有</button>
       <button class="secondary" onclick="saveImage()">画像保存</button>
       <button class="secondary" onclick="copySetlist()">コピー</button>
@@ -296,6 +310,33 @@ function getSongsFromInput() {
 function updateCount() {
   countEl.textContent = `登録曲：${songs.length}曲`;
 }
+
+function getNextObserverNumber(){
+  const key = "toumeiObserverNumber";
+  const current = Number(localStorage.getItem(key) || "0") + 1;
+  localStorage.setItem(key, String(current));
+  return current;
+}
+
+let currentObserverNumber = null;
+
+function formatObserverNumber(num){
+  return String(num).padStart(4, "0");
+}
+
+function updateObserverLabel(){
+  const label = document.getElementById("observerLabel");
+  if (!label) return;
+  if (currentObserverNumber) {
+    label.textContent = `透明観測 No.${formatObserverNumber(currentObserverNumber)}`;
+  } else {
+    const last = Number(localStorage.getItem("toumeiObserverNumber") || "0");
+    label.textContent = last ? `前回の透明観測 No.${formatObserverNumber(last)}` : "透明観測 No.---";
+  }
+}
+
+updateObserverLabel();
+
 
 function shuffle(array) {
   const a = [...array];
@@ -375,6 +416,75 @@ function pickWithoutSameSongDupes(pool, count) {
   return picked;
 }
 
+let soundEnabled = true;
+let audioCtx = null;
+
+function toggleSound(){
+  soundEnabled = !soundEnabled;
+  document.getElementById("soundToggle").textContent = soundEnabled ? "音 ON" : "音 OFF";
+}
+
+function getAudioCtx(){
+  if (!audioCtx) {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (AudioContext) audioCtx = new AudioContext();
+  }
+  return audioCtx;
+}
+
+function playTone(freq, start, duration, type="sine", gainValue=.08){
+  if (!soundEnabled) return;
+  const ctx = getAudioCtx();
+  if (!ctx) return;
+
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
+
+  gain.gain.setValueAtTime(0.0001, ctx.currentTime + start);
+  gain.gain.exponentialRampToValueAtTime(gainValue, ctx.currentTime + start + 0.025);
+  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + start + duration);
+
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(ctx.currentTime + start);
+  osc.stop(ctx.currentTime + start + duration + 0.03);
+}
+
+function playOpenSound(){
+  if (!soundEnabled) return;
+  const ctx = getAudioCtx();
+  if (!ctx) return;
+  if (ctx.state === "suspended") ctx.resume();
+
+  // 水中っぽい短いアルペジオ
+  const notes = [196, 247, 294, 370, 494, 587];
+  notes.forEach((f, i) => playTone(f, i * .075, .18, "sine", .055));
+
+  // 低音のドン
+  playTone(73, .04, .45, "triangle", .10);
+}
+
+function playRevealSound(){
+  if (!soundEnabled) return;
+  const ctx = getAudioCtx();
+  if (!ctx) return;
+
+  // 表示時のキラッとした音
+  [659, 880, 1175].forEach((f, i) => playTone(f, i * .055, .20, "sine", .05));
+}
+
+function playDeepSound(){
+  if (!soundEnabled) return;
+  const ctx = getAudioCtx();
+  if (!ctx) return;
+
+  // DEEP曲が混じった時の低めの効果音
+  playTone(98, 0, .28, "triangle", .08);
+  playTone(147, .10, .35, "sine", .05);
+}
+
 async function blackout(){
   const overlay=document.createElement("div");
   overlay.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.96);z-index:9999;opacity:0;transition:opacity .28s ease;";
@@ -451,6 +561,9 @@ function pickLiveLikeSetlist(pool){
 }
 
 async function generateSetlist() {
+  const ctx = getAudioCtx();
+  if (ctx && ctx.state === "suspended") await ctx.resume();
+  playOpenSound();
   const pool = getSongsFromInput();
   const uniqueSongCount = new Set(pool.map(getSongKey)).size;
   if (uniqueSongCount < 23) {
@@ -459,9 +572,15 @@ async function generateSetlist() {
   }
   await blackout();
   const picked = pickLiveLikeSetlist(pool);
+  currentObserverNumber = getNextObserverNumber();
+  updateObserverLabel();
   document.getElementById("setlistTitle").textContent = `${getDisplayName()}本編 20曲`;
   render("mainList", picked.slice(0, 20), 1);
   render("encoreList", picked.slice(20), 1);
+  playRevealSound();
+  if (picked.some(song => rarity(song))) {
+    setTimeout(playDeepSound, 260);
+  }
   // 試聴は固定登録済みのApple Music埋め込みを優先するため、公開版ではAPI先読みは行わない。
 }
 
@@ -780,7 +899,8 @@ function makeShortPostText(){
   const {main} = currentSetlist();
   if (!main.length) return "";
   const titleName = getDisplayName() ? `${getDisplayName()}透明ツアー予想セトリ` : "透明ツアー予想セトリ";
-  return `${titleName}を作成しました🎣\nあなただけのライブセトリを作ってみよう。\n\n#サカナクション\n#透明ツアー\n#透明ツアーセトリガチャ`;
+  const obs = currentObserverNumber ? `\n透明観測 No.${formatObserverNumber(currentObserverNumber)}` : "";
+  return `${titleName}を作成しました🎣${obs}\nあなただけのライブセトリを作ってみよう。\n\n#サカナクション\n#透明ツアー\n#透明ツアーセトリガチャ`;
 }
 
 function drawShareImage(){
@@ -822,15 +942,21 @@ function drawShareImage(){
   const name = getDisplayName();
   ctx.fillText(name ? `${name}SETLIST` : "SETLIST GACHA", 94, 188);
 
+  if (currentObserverNumber) {
+    ctx.fillStyle = "#f6f0a6";
+    ctx.font = "800 25px sans-serif";
+    ctx.fillText(`透明観測 No.${formatObserverNumber(currentObserverNumber)}`, 94, 226);
+  }
+
   ctx.fillStyle = "#f6f0a6";
   ctx.font = "800 28px sans-serif";
-  ctx.fillText("Main set", 94, 250);
+  ctx.fillText("Main set", 94, 275);
 
-  let y = 302;
+  let y = 327;
   const numX = 98;
   const songX = 160;
   const maxWidth = 820;
-  const rowGap = 47;
+  const rowGap = 45;
 
   main.forEach((song,i)=>{
     ctx.fillStyle = "#89e8ff";
