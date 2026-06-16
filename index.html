@@ -296,7 +296,7 @@
 
   <section class="panel" id="previewPanel" style="display:none;margin-top:18px;">
     <h2>試聴</h2>
-    <p class="small">曲名横の「試聴」を押すと、その曲の下にApple Musicの埋め込みプレイヤーを表示します。見つからない曲は「検索」からApple Musicへ移動してください。</p>
+    <p class="small">曲名横の「試聴」を押すと、その曲の下にApple Musicの埋め込みプレイヤーを表示します。Apple MusicやYouTubeでも検索できます。</p>
   </section>
 
   <section class="panel" id="editor" style="display:none;margin-top:18px;">
@@ -305,7 +305,7 @@
     <textarea id="songInput"></textarea>
   </section>
 </div>
-<canvas id="shareCanvas" width="1080" height="1920" style="display:none;"></canvas>
+<canvas id="shareCanvas" width="1080" height="1660" style="display:none;"></canvas>
 
 <script>
 const defaultSongs = ["三日月サンセット", "インナーワールド", "あめふら", "GO TO THE FUTURE", "フクロウ", "開花", "白波トップウォーター", "夜の東側", "ワード", "サンプル", "ナイトフィッシングイズグッド", "雨は気まぐれ", "マレーシア32", "うねり", "ティーンエイジ", "哀愁トレイン", "新しい世界", "アムスフィッシュ", "Ame(B)", "ライトダンス", "セントレイ", "ネイティブダンサー", "minnanouta", "雑踏", "黄色い車", "enough", "涙ディライト", "アドベンチャー", "human", "intro＝汽空域", "潮", "YES NO", "アルクアラウンド", "Klee", "21.1", "アンダー", "シーラカンスと僕", "明日から", "表参道26時", "壁", "目が明く藍色", "Paradise of Sunny", "RL", "アイデンティティ", "モノクロトウキョー", "ルーキー", "アンタレスと針", "仮面の街", "流線", "エンドレス", "DocumentaRy", "『バッハの旋律を夜に聴いたせいです。』", "years", "ドキュメント", "intro", "INORI", "ミュージック", "夜の踊り子", "なんてったって春", "アルデバラン", "M", "Aoi", "ボイル", "映画", "僕と花", "mellow", "ストラクチャー", "朝の歌", "ホーリーダンス", "Ame(A)", "multiple exposure", "スローモーション", "もどかしい日々", "スプーンと汗", "ネプトゥーヌス", "montage", "忘れられないの", "マッチとピーナッツ", "陽炎", "多分、風。", "新宝島", "モス", "聴きたかったダンスミュージック、リキッドルームに", "セプテンバー -東京 version-", "グッドバイ", "蓮の花", "ユリイカ", "ナイロンの糸", "茶柱", "ワンダーランド", "さよならはエモーション", "834.194", "セプテンバー -札幌 version-", "塔", "キャラバン", "月の椀", "プラトー", "ショック！", "エウリュノメー", "シャンディガフ", "フレンドリー", "DocumentaRy of ADAPT", "moon", "怪獣", "マレーシア32 ～ 21.1 ～ Paradise of Sunny", "SAKANATRIBE", "SORATO", "僕と花 -SAKANAQUARIUM 2013 VERSION-", "ネイティブダンサー -SAKANAQUARIUM 2013 VERSION-", "バッハの旋律を夜に聴いたせいです。 -SAKANAQUARIUM 2013 VERSION-", "Ame(B) -SAKANATRIBE MIX-", "N.F.I.G REMIX", "SAKANATRIBE TRANCEMIX WITH GOCOO+GoRo", "グッドバイ (NEXT WORLD REMIX)", "ネイティブダンサー Remix 2024", "バッハの旋律を夜に聴いたせいです。 Remix 2024", "GO TO THE FUTURE (2006 ver.)", "ナイトフィッシングイズグッド (Iw_Remix)", "ミュージック (Ej_Remix)", "アイデンティティ (Ks_Remix)", "ルーキー (Takkyu Ishino Remix)", "三日月サンセット (FPM EVERLUST MIX)", "ライトダンス YSST Remix 2015", "映画 (AOKI takamasa Remix)", "サンプル (cosmic version)", "さよならはエモーション (Qrion Remix)", "YES NO (AOKI takamasa Remix)", "夜の踊り子 (agraph Remix)", "ミュージック (Cornelius Remix)", "ネイティブダンサー (rei harakami re-arrange)"];
@@ -632,6 +632,11 @@ function appleMusicSearchUrl(song){
   return `https://music.apple.com/jp/search?term=${q}`;
 }
 
+function youtubeSearchUrl(song){
+  const q = encodeURIComponent(`${stripVersionForSearch(song)} サカナクション`);
+  return `https://www.youtube.com/results?search_query=${q}`;
+}
+
 function escapeJs(str){
   return String(str).replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/\n/g, "\\n").replace(/\r/g, "");
 }
@@ -670,8 +675,10 @@ function embedUrlFromAppleMusicUrl(url){
 
 function songActionHtml(song){
   const searchUrl = appleMusicSearchUrl(song);
+  const ytUrl = youtubeSearchUrl(song);
   return `<button class="mini-btn" onclick="openEmbedPreview(event, '${escapeJs(song)}')">試聴</button>
-          <a class="mini-btn" href="${searchUrl}" target="_blank" rel="noopener">検索</a>`;
+          <a class="mini-btn" href="${searchUrl}" target="_blank" rel="noopener">Apple</a>
+          <a class="mini-btn" href="${ytUrl}" target="_blank" rel="noopener">YouTube</a>`;
 }
 
 const embedUrlCache = new Map();
@@ -938,7 +945,7 @@ function drawShareImage(){
 
   const canvas = document.getElementById("shareCanvas");
   canvas.width = 1080;
-  canvas.height = 1920;
+  canvas.height = 1660;
   const ctx = canvas.getContext("2d");
   const w = canvas.width, h = canvas.height;
 
@@ -1008,7 +1015,7 @@ function drawShareImage(){
 
   ctx.fillStyle = "#b8d6e8";
   ctx.font = "500 23px sans-serif";
-  ctx.fillText("#サカナクション #透明ツアー #透明ツアーセトリガチャ", 92, h-112);
+  ctx.fillText("#サカナクション #透明ツアー #透明ツアーセトリガチャ", 92, h-88);
 
   return canvas;
 }
