@@ -296,7 +296,7 @@
 
   <section class="panel" id="previewPanel" style="display:none;margin-top:18px;">
     <h2>試聴</h2>
-    <p class="small">曲名横の「試聴」を押すと、その曲の下にApple Musicの埋め込みプレイヤーを表示します。Apple MusicやYouTubeでも検索できます。</p>
+    <p class="small">曲名横の「試聴」を押すと、その曲の下にApple Musicの埋め込みプレイヤーを表示します。YouTubeでも検索できます。</p>
   </section>
 
   <section class="panel" id="editor" style="display:none;margin-top:18px;">
@@ -674,10 +674,8 @@ function embedUrlFromAppleMusicUrl(url){
 }
 
 function songActionHtml(song){
-  const searchUrl = appleMusicSearchUrl(song);
   const ytUrl = youtubeSearchUrl(song);
   return `<button class="mini-btn" onclick="openEmbedPreview(event, '${escapeJs(song)}')">試聴</button>
-          <a class="mini-btn" href="${searchUrl}" target="_blank" rel="noopener">Apple</a>
           <a class="mini-btn" href="${ytUrl}" target="_blank" rel="noopener">YouTube</a>`;
 }
 
